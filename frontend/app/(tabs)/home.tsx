@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   Image,
   RefreshControl,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { userAPI } from '../../src/services/api';
+import { useThemeStore } from '../../src/store/themeStore';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2; // 2 columns with padding
+const PADDING = 16;
+const GAP = 12;
+const LARGE_WIDTH = (width - PADDING * 2 - GAP) * 0.6; // 60% width
+const SMALL_WIDTH = (width - PADDING * 2 - GAP) * 0.4; // 40% width
+const LARGE_HEIGHT = 280;
+const SMALL_HEIGHT = (LARGE_HEIGHT - GAP) / 2;
 
 interface User {
   id: string;

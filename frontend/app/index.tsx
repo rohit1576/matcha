@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../src/store/authStore';
 
 export default function Index() {
   const router = useRouter();
-  const { token, isLoading } = useAuthStore();
+  const { token, isLoading, loadToken } = useAuthStore();
+
+  useEffect(() => {
+    loadToken();
+  }, []);
 
   useEffect(() => {
     if (!isLoading) {

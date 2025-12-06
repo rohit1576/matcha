@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { useAuthStore } from '../src/store/authStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -8,7 +8,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     loadToken();
-  }, []);
+  }, [loadToken]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

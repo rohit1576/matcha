@@ -34,9 +34,11 @@ interface User {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const colors = useThemeStore((state) => state.colors);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchUsers = async () => {
     try {
@@ -59,69 +61,164 @@ export default function HomeScreen() {
     fetchUsers();
   };
 
-  const renderUserCard = ({ item }: { item: User }) => (
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery.trim()) return users;
+    const query = searchQuery.toLowerCase();
+    return users.filter(
+      (user) =>
+        user.instagram_handle.toLowerCase().includes(query) ||
+        user.name.toLowerCase().includes(query)
+    );
+  }, [users, searchQuery]);
+
+  const renderUserCard = (user: User, isLarge: boolean) => (
     <TouchableOpacity
-      style={styles.card}
-      onPress={() => router.push(`/profile/${item.instagram_handle}`)}
+      key={user.id}
+      style={[
+        styles.card,
+        isLarge ? styles.largeCard : styles.smallCard,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+      onPress={() => router.push(`/profile/${user.instagram_handle}`)}
     >
-      {item.profile_picture ? (
+      {user.profile_picture ? (
         <Image
-          source={{ uri: item.profile_picture }}
-          style={styles.cardImage}
+          source={{ uri: user.profile_picture }}
+          style={[styles.cardImage, isLarge ? styles.largeImage : styles.smallImage]}
           resizeMode="cover"
         />
       ) : (
-        <View style={[styles.cardImage, styles.placeholderImage]}>
-          <Text style={styles.placeholderText}>
-            {item.name.charAt(0).toUpperCase()}
+        <View
+          style={[
+            styles.cardImage,
+            isLarge ? styles.largeImage : styles.smallImage,
+            { backgroundColor: colors.surface },
+          ]}
+        >
+          <Text style={[styles.placeholderText, { color: colors.primary }]}>
+            {user.name.charAt(0).toUpperCase()}
           </Text>
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.userName} numberOfLines={1}>
-          {item.name}
+        <Text style={[styles.userName, { color: colors.text }]} numberOfLines={1}>
+          {user.name}
         </Text>
-        <Text style={styles.userHandle} numberOfLines={1}>
-          @{item.instagram_handle}
+        <Text style={[styles.userHandle, { color: colors.textSecondary }]} numberOfLines={1}>
+          @{user.instagram_handle}
         </Text>
-        {item.verified && (
-          <View style={styles.verifiedBadge}>
-            <Text style={styles.verifiedText}>Verified</Text>
+        {user.verified && (
+          <View style={[styles.verifiedBadge, { backgroundColor: colors.primary }]}>
+            <Text style={styles.verifiedText}>✓</Text>
           </View>
         )}
       </View>
     </TouchableOpacity>
   );
 
+  const renderAsymmetricGrid = () => {
+    const rows = [];
+    let index = 0;
+
+    while (index < filteredUsers.length) {
+      const isLeftLarge = rows.length % 2 === 0;
+      
+      if (isLeftLarge) {
+        // Large on left, 2 small on right
+        const leftUser = filteredUsers[index];
+        const topRightUser = filteredUsers[index + 1];
+        const bottomRightUser = filteredUsers[index + 2];
+
+        rows.push(
+          <View key={`row-${index}`} style={styles.row}>
+            <View style={styles.leftColumn}>
+              {leftUser && renderUserCard(leftUser, true)}
+            </View>
+            <View style={styles.rightColumn}>
+              {topRightUser && renderUserCard(topRightUser, false)}
+              {bottomRightUser && renderUserCard(bottomRightUser, false)}
+            </View>
+          </View>
+        );
+        index += 3;
+      } else {
+        // 2 small on left, large on right
+        const topLeftUser = filteredUsers[index];
+        const bottomLeftUser = filteredUsers[index + 1];
+        const rightUser = filteredUsers[index + 2];
+
+        rows.push(
+          <View key={`row-${index}`} style={styles.row}>
+            <View style={styles.leftColumn}>
+              {topLeftUser && renderUserCard(topLeftUser, false)}
+              {bottomLeftUser && renderUserCard(bottomLeftUser, false)}
+            </View>
+            <View style={styles.rightColumn}>
+              {rightUser && renderUserCard(rightUser, true)}
+            </View>
+          </View>
+        );
+        index += 3;
+      }
+    }
+
+    return rows;
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Matcha</Text>
-        <Text style={styles.subtitle}>Discover Dating Tea</Text>
+        <Text style={[styles.title, { color: colors.primary }]}>Matcha</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Discover Dating Tea
+        </Text>
+
+        {/* Search Bar */}
+        <View style={[styles.searchContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="search" size={20} color={colors.textSecondary} />
+          <TextInput
+            style={[styles.searchInput, { color: colors.text }]}
+            placeholder="Search by Instagram handle..."
+            placeholderTextColor={colors.placeholder}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
-      <FlatList
-        data={users}
-        renderItem={renderUserCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
+      <ScrollView
         contentContainerStyle={styles.grid}
-        columnWrapperStyle={styles.columnWrapper}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#FF69B4"
+            tintColor={colors.primary}
           />
         }
-        ListEmptyComponent={
+      >
+        {loading ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              {loading ? 'Loading users...' : 'No users found'}
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              Loading users...
             </Text>
           </View>
-        }
-      />
+        ) : filteredUsers.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="search-outline" size={48} color={colors.border} />
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              {searchQuery ? 'No users found' : 'No users yet'}
+            </Text>
+          </View>
+        ) : (
+          renderAsymmetricGrid()
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }

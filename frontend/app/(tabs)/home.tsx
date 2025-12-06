@@ -226,71 +226,91 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
   },
   header: {
-    paddingHorizontal: 24,
+    paddingHorizontal: PADDING,
     paddingTop: 16,
-    paddingBottom: 24,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FF69B4',
   },
   subtitle: {
     fontSize: 14,
-    color: '#999',
     marginTop: 4,
-  },
-  grid: {
-    paddingHorizontal: 16,
-  },
-  columnWrapper: {
-    justifyContent: 'space-between',
     marginBottom: 16,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 12,
+    borderWidth: 1,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+  },
+  grid: {
+    paddingHorizontal: PADDING,
+    paddingBottom: 24,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: GAP,
+    marginBottom: GAP,
+  },
+  leftColumn: {
+    gap: GAP,
+    flex: 1,
+  },
+  rightColumn: {
+    gap: GAP,
+    flex: 1,
+  },
   card: {
-    width: CARD_WIDTH,
-    backgroundColor: '#1A1A1A',
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#333',
+  },
+  largeCard: {
+    height: LARGE_HEIGHT,
+  },
+  smallCard: {
+    height: SMALL_HEIGHT,
   },
   cardImage: {
     width: '100%',
-    height: CARD_WIDTH * 1.2,
   },
-  placeholderImage: {
-    backgroundColor: '#333',
-    justifyContent: 'center',
-    alignItems: 'center',
+  largeImage: {
+    height: LARGE_HEIGHT - 70,
+  },
+  smallImage: {
+    height: SMALL_HEIGHT - 70,
   },
   placeholderText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#FF69B4',
   },
   cardContent: {
     padding: 12,
   },
   userName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   userHandle: {
-    fontSize: 14,
-    color: '#999',
+    fontSize: 12,
   },
   verifiedBadge: {
-    backgroundColor: '#FF69B4',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginTop: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginTop: 6,
     alignSelf: 'flex-start',
   },
   verifiedText: {
@@ -301,9 +321,9 @@ const styles = StyleSheet.create({
   emptyContainer: {
     paddingTop: 48,
     alignItems: 'center',
+    gap: 16,
   },
   emptyText: {
-    color: '#999',
     fontSize: 16,
   },
 });
